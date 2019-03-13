@@ -1,0 +1,138 @@
+<!-- 
+
+888    d8P                   888     .d8888b.                                              888    
+888   d8P                    888    d88P  Y88b                                             888    
+888  d8P                     888    888    888                                             888    
+888d88K     888  888 888d888 888888 888         .d88b.  88888b.  888  888  .d88b.  888d888 888888 
+8888888b    888  888 888P"   888    888        d88""88b 888 "88b 888  888 d8P  Y8b 888P"   888    
+888  Y88b   888  888 888     888    888    888 888  888 888  888 Y88  88P 88888888 888     888    
+888   Y88b  Y88b 888 888     Y88b.  Y88b  d88P Y88..88P 888  888  Y8bd8P  Y8b.     888     Y88b.  
+888    Y88b  "Y88888 888      "Y888  "Y8888P"   "Y88P"  888  888   Y88P    "Y8888  888      "Y888 
+                                                                                                   
+-->                                                                                                                                                                                      
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <!-- Insert this line above script imports  -->
+        <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+        <script src="jquery-3.3.1.min.js" type="text/javascript"></script>
+        <title>CurtConvert</title>
+        <script src="jquery.caret.min.js" type="text/javascript"></script>
+        <script src="jquery.tag-editor.min.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
+        <script src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/15979/footer-inject.js'></script>
+        <link href="page2styles.css" rel="stylesheet" type="text/css">
+        <link href="jquery.tag-editor.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Quicksand|Asap:700' rel='stylesheet' type='text/css'>
+
+        <!-- Insert this line after script imports -->
+        <script>if (window.module) module = window.module;</script>
+
+    </head>
+    <body>
+            
+                    <div id="RoundedRectangle1"><img src="images/page2/RoundedRectangle1.png"></div>
+                    <div id="clipart704393"><img src="images/page2/clipart704393.png"></div>
+                    <div id="Layer1">
+                            <div class="error404page">
+                                <div class="newcharacter404">
+                                    <div class="chair404"></div>
+                                    <div class="leftshoe404"></div>
+                                    <div class="rightshoe404"></div>
+                                    <div class="legs404"></div>
+                                    <div class="torso404">
+                                        <div class="body404"></div>
+                                        <div class="leftarm404"></div>
+                                        <div class="rightarm404"></div>
+                                        <div class="head404">
+                                            <div class="eyes404"></div>
+                                        </div>
+                                    </div>
+                                    <div class="laptop404"></div>
+                                </div>
+                            </div>
+                        </div>
+                    <!-- <div id="AppliedTags"><img src="images/page2/AppliedTags.png"></div> -->
+                    <!-- <div id="RoundedRectangle2"><input type="text" name="TagInput" value=""></div> -->
+                    <div id="Rectangle2"><img src="images/page2/Rectangle2.png"></div>
+                    <div id="KurtConvert"><img src="images/page2/CurtConvert.png"></div>                    
+                    <div id="minimize"><img src="images/minimize.png"></div>
+                    <div id="X"><img src="images/close.png"></div>                                       
+                    <div id="RoundedRectangle2_2">
+                            <div class="progress-bar">
+                                <span class="filename1">Transcoding...</span>
+                                <div id="barpositive">                                  
+                                </div> </div>
+                            
+                    </div>                    
+                    <div id="kill"><img src="images/page2/Shape1_0.png"></div>
+                    <div id="Progress"><img src="images/page2/Progress.png"></div>
+                    <!-- <div id="OverallTimeRemaining"><img src="images/page2/OverallTimeRemaining.png"></div>
+                    <div id="RoundedRectangle2_4"><img src="images/page2/RoundedRectangle2_4.png"></div> -->
+                    <div id="back">FINISH</div>
+                <!-- tag input script -->
+                        <script>
+                        $(document).ready(tags);
+                        function tags(){
+                            $('input[name="TagInput"]').tagEditor({
+                            
+                            delimiter: ', ', /* space and comma */
+                            placeholder: 'Enter tags...'
+                            });
+                        }
+                        </script>
+
+                <!-- script to kill ffmpeg conversion -->
+                <script>                
+                document.getElementById("kill").addEventListener("click", () => {
+                    ipcRenderer.send('kill');
+                })
+                </script>
+
+                <!-- script for listen for transcoding progress percentage -->
+                <script>
+                const electron = require("electron");
+                const ipc = electron.ipcRenderer;
+                const { ipcRenderer } = require('electron');
+                const elem = document.getElementById("barpositive");
+                ipcRenderer.on('progress', (event, percent) => {
+                    console.log(percent);
+                // <!-- control dynamic progress bar animation -->
+                    elem.style.width = percent + '%';
+                }).on('complete', (event) => {
+                    //show complete/back button CSS
+                    console.log('"can you see me in the renderer?" -Curt');
+                    document.getElementById("back").style.display = "block";    
+                })
+                </script>
+
+                <!-- script to control clicking complete button to return user to app.html -->
+                <script>
+                document.getElementById("back").addEventListener("click", () => {
+                    //Remember the link href
+                    var href = 'app.html';
+                    // Don't follow the link
+                    event.preventDefault();
+                    window.location.href = href;
+                })
+                </script>
+
+                <!-- script for electron window control -->
+                <script>
+                const remote = require('electron').remote;
+                $('#X').on('click',closeWindow);
+                $('#minimize').on('click',minimizeWindow);
+                function closeWindow () {
+                    var window = remote.BrowserWindow.getFocusedWindow();
+                    window.close();
+                }
+                function minimizeWindow () {  
+                    var window = remote.BrowserWindow.getFocusedWindow();
+                    window.minimize();
+                }
+              </script>
+    </body>
+    </html>

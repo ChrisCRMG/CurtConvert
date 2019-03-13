@@ -8,7 +8,7 @@
 888  Y88b   888  888 888     888    888    888 888  888 888  888 Y88  88P 88888888 888     888    
 888   Y88b  Y88b 888 888     Y88b.  Y88b  d88P Y88..88P 888  888  Y8bd8P  Y8b.     888     Y88b.  
 888    Y88b  "Y88888 888      "Y888  "Y8888P"   "Y88P"  888  888   Y88P    "Y8888  888      "Y888 
-with a C                                                                                                   
+                                                                                                   
 -->                                                                                                                                                                                      
 <!DOCTYPE html>
 <html>
@@ -18,7 +18,7 @@ with a C
         <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 
         <script src="jquery-3.3.1.min.js" type="text/javascript"></script>
-        <title>CurtConvert</title>
+        <title>KurtConvert</title>
         <script src="jquery.caret.min.js" type="text/javascript"></script>
         <script src="jquery.tag-editor.min.js" type="text/javascript"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
@@ -33,7 +33,7 @@ with a C
 
     </head>
     <body>
-        
+        <div id="background">
             
             <div id="RoundedRectangle1"><img src="images/RoundedRectangle1.png"></div>
             <div id="Rectangle2"><img src="images/Rectangle2.png"></div>
@@ -54,13 +54,16 @@ with a C
                     </div>
               </section>
             </div>
-            <div id="KurtConvert"><img src="images/CurtConvert.png"></div>
+            <div id="KurtConvert"><img src="images/KurtConvert.png"></div>
             <div id="layer_1"><img src="images/layer_1.png"></div>
             <div id="EnqueueVideos"><img src="images/EnqueueVideos.png"></div>            
-            <button id="startButton" class="btn btn-primary" value="Open File" style="-webkit-app-region: no-drag; cursor: pointer; outline:none !important; border:none;"><div id="RoundedRectangle2"></div></button>
-            <button id="openButton" class="btn btn-primary" value="Open File" style="-webkit-app-region: no-drag;  cursor: pointer; outline:none !important; border:none;"><div id="RoundedRectangle2_0"></div></button>
+            <button id="startButton" class="btn btn-primary" value="Open File" style="-webkit-app-region: no-drag; cursor: pointer;"><div id="RoundedRectangle2"></div>
+            <div id="CONVERT"><img src="images/CONVERT.png"></div></button>
+            <button id="openButton" class="btn btn-primary" value="Open File" style="-webkit-app-region: no-drag; cursor: pointer;"><div id="RoundedRectangle2_0"><img src="images/RoundedRectangle2_0.png"></div>
+            <div id="uploadbutton"><img src="images/plus.png"></div></button>
             <div id="APIKey"><img src="images/exportto.png"></div>
-            <button id="folderButton" class="btn btn-primary" value="Open File" style="-webkit-app-region: no-drag;  cursor: pointer; outline:none !important; border:none;"><div id="RoundedRectangle2_1"></div></button>
+            <button id="folderButton" class="btn btn-primary" value="Open File" style="-webkit-app-region: no-drag; cursor: pointer;"><div id="RoundedRectangle2_1"><img src="images/RoundedRectangle2_1.png"></div>
+            <div id="GO"><img src="images/savefolder.png"></div></button>
             <div id="RoundedRectangle2_2"><span id="selectedfolderspan"></span></div>
             <div id="minimize"><img src="images/minimize.png"></div>
             <div id="X"><img src="images/close.png"></div>
@@ -69,24 +72,23 @@ with a C
             <div id="SelectCodecFileoutpu"><img src="images/SelectCodecFileoutpu.png"></div>
             <div id="codecbox">
                 <ul id="codeclist">
-                  <li id="tabOne" class="first selected" data-codec="libx264">H264 (MP4) - <i>Recommended</i></li>
-                  <li id="tabTwo" data-codec="libvpx">VP8 (WEBM)</li>
-                  <li id="tabThree" data-codec="libvpx-vp9">VP9 (WEBM)</li>
+                  <li id="tabOne" class="first selected">H264 (MP4) - <i>Recommended</i></li>
+                  <li id="tabTwo">VP8 (WEBM)</li>
+                  <li id="tabThree">VP9 (WEBM)</li>
                 </ul>
-            
+            </div>
             
             <!-- script to control selction highlighting -->
             <script>
-              $('#codeclist li').on('click', function(){  
+              $('#codeclist li').on('click', function(){                  
                   $('#codeclist li').removeClass('selected');
                   $(this).addClass('selected');
               });
             </script>
-
-            <!-- unhide the below code to reshow tag selector: -->
-            <!-- <div id="layer_3"><img src="images/layer_3.png"></div>
+             
+            <div id="layer_3"><img src="images/layer_3.png"></div>
             <div id="ApplyTagsoptional"><img src="images/ApplyTagsoptional.png"></div>            
-            <div id="RoundedRectangle2_5"><input type="text" name="TagInput" value=""></div> -->
+            <div id="RoundedRectangle2_5"><input type="text" name="TagInput" value=""></div>
 
             <!-- script for tag editor -->
             <script>
@@ -106,8 +108,6 @@ with a C
         <script>
             const fs = require("fs");
             const path = require('path');
-            var jobs = [];
-            var dest = false;
             
             const {dialog} = require("electron").remote
             $("#GO, #RoundedRectangle2_1").on("click", function(){
@@ -116,34 +116,28 @@ with a C
                   console.log("No selected folder");
                   return;
                 }              
-                dest = folderNames[0];
                 //print selected folder path to span
-                $('#selectedfolderspan').html(path.basename(dest));
+                $('#selectedfolderspan').html(path.basename(folderNames));
+                
                 //send selected folder path to background.js for ffmpeg command input
+                ipcRenderer.send('selectedfolderpath', folderNames);
+                console.log("sent this folder to main" + folderNamers);
               });
             });
           </script>
 
         <!-- script for source video(s) selection -->
         <script>
-         document.getElementById("openButton").addEventListener("click", () => {
-            dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'] },(fileNames) => {
+          //const fs = require("fs");
+          //const path = require('path');
+          //const {dialog} = require("electron").remote
+          document.getElementById("openButton").addEventListener("click", () => {
+            dialog.showOpenDialog((fileNames) => {
               if (!fileNames || !fileNames.length) {
                 console.log("No selected files");
                 return;
-              }
-              var new_job = {
-                file: fileNames[0]
-              }
-              jobs.push(new_job);
-              var html = $('<ul class="selected_files">');
-              for (var j of jobs){
-                var f = $('<li>').text(path.basename(j.file));
-                  f.appendTo(html);
-              }
-              $('#selectedfilesspan').html(html);
-              
-              
+              }              
+              ipc.send('source-files', fileNames[0]);
             });
           }, false);
         </script>
@@ -152,38 +146,24 @@ with a C
         <script>
             const electron = require("electron");
             const ipc = electron.ipcRenderer
-            const { ipcRenderer } = require('electron');
             const errorBtn = document.getElementById('openButton');
 
-            // listen for transcoding progress percentage
-              require('electron').ipcRenderer.on('progress', percent => {
-                console.log(percent + 'received successfully') 
-              })            
+            //listen for selectedfiles response
+            ipc.on('selectedfiles', function(event,data){
+              //print filelist to <span> on app.html:                
+                $('#selectedfilesspan').html(path.basename(data));
+            })
+          // listen for transcoding progress percentage
+              ipc.on('percentage', function(percent){
+              console.log(progress.percent, "received successfully");
+              })
         </script>
 
-        <!-- script for starting transcoding proccess -->
-        <script>            
-            document.getElementById("startButton").addEventListener("click", () => {
-              //if they haven't chosen any files yet
-              if(jobs.length == 0){
-                alert("Please choose a video to transcode");
-              }
-              if(!dest){
-                alert("Please select a destination folder");
-                return;
-              }
-              var codec = $('#codeclist .selected').data('codec');
-              for(var j of jobs){
-                  j.dest = dest;
-                  j.codec = codec;
-              }
-              console.log(jobs);
-              ipcRenderer.send('start', jobs);
-              //Remember the link href
-              var href = 'page2.html';
-              // Don't follow the link
-              event.preventDefault();
-              window.location.href = href;
+        <!-- script for starting transcoding proccess message -->
+        <script>
+            
+            document.getElementById("startButton").addEventListener("click", () => {                     
+              ipc.send('start', transcode);
             });          
         </script>
      
