@@ -101,3 +101,5 @@ We use [electron-builder](https://github.com/electron-userland/electron-builder)
 
 You can package your app cross-platform from a single operating system, [electron-builder kind of supports this](https://www.electron.build/multi-platform-build), but there are limitations and asterisks. That's why this boilerplate doesn't do that by default.
 "# CurtConvert" 
+"# CurtConvert" 
+"# CurtConvert" 
